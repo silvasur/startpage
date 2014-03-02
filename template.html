@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Startpage</title>
+		<style type="text/css">
+			body {
+				background: black url({{ .Porn.URL }}) no-repeat center center fixed;
+				-moz-background-size: cover;
+				-o-background-size: cover;
+				background-size: cover;
+			}
+			a {
+				color: #eee;
+				text-decoration: none;
+			}
+			a:hover {
+				color: white;
+				text-decoration: underline;
+			}
+			* { font-family: "DejaVu Sans Light", sans-serif; }
+			#earthporninfo { position: fixed; bottom: 2mm; right: 10mm; font-size: 8pt; }
+			#earthporninfo a { background: black; }
+			#weather { position: fixed; top: 10mm; left: 10mm; }
+			#temp { position: absolute; top: 30px; left: 60px; font-size:70px; text-shadow: black 2px 2px; color: white;}
+			#links {
+				position: absolute;
+				top: 40%;
+				left: 20%;
+				columns: {{ .LCols }};
+				-moz-columns: {{ .LCols }};
+				padding: 5mm;
+				background: rgba(0,0,0,0.6);
+			}
+			#links ul {
+				padding: 0px;
+				margin: 0px;
+				list-style: none;
+			}
+			#links ul li {
+				padding: 0px;
+				margin: 0px;
+				font-size: 10pt;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="weather">
+			<a href="{{ .Weather.URL }}"><img src="{{ .Weather.Icon }}" alt="" /></a>
+			<span id="temp">{{ .Weather.Temp.Value }}°</span>
+		</div>
+		<div id="links">
+			<ul>
+				{{ range .Links }}
+					<li><a href="{{ .URL }}">{{ .Title }}</a></li>
+				{{ end }}
+			</ul>
+		</div>
+		<div id="earthporninfo">
+			<a href="http://reddit.com{{ .Porn.Permalink }}">{{ .Porn.Title }}</a>
+		</div>
+	</body>
+</html>
