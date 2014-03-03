@@ -32,7 +32,7 @@ func (w *Weather) prepIcon(sun Sun) {
 	switch w.Symbol.Number {
 	case 1, 2, 3, 5, 6, 7, 8, 20, 21:
 		if night {
-			format += "n.50"
+			format += "n"
 		} else {
 			format += "d"
 		}
