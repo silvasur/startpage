@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+	"path"
+	"strings"
 	"time"
 )
 
@@ -71,9 +75,26 @@ func intervalUpdates(d time.Duration, stopch <-chan bool, chans ...chan<- bool) 
 	}
 }
 
+var tpl *template.Template
+
+func loadTemplate() {
+	gopaths := strings.Split(os.Getenv("GOPATH"), ":")
+	for _, p := range gopaths {
+		var err error
+		tpl, err = template.ParseFiles(path.Join(p, "src", "github.com", "kch42", "startpage", "template.html"))
+		if err == nil {
+			return
+		}
+	}
+
+	panic(errors.New("could not find template in $GOPATH/src/github.com/kch42/startpage"))
+}
+
 func main() {
 	laddr := flag.String("laddr", ":25145", "Listen on this port")
 	flag.Parse()
+
+	loadTemplate()
 
 	pornch := make(chan bool)
 	weatherch := make(chan bool)
@@ -90,8 +111,6 @@ func main() {
 	http.HandleFunc("/", startpage)
 	log.Fatal(http.ListenAndServe(*laddr, nil))
 }
-
-var tpl = template.Must(template.ParseFiles("template.html"))
 
 type TplData struct {
 	Porn    *EarthPorn
