@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -57,7 +61,21 @@ type weatherdata struct {
 	Forecast []*Weather `xml:"forecast>tabular>time"`
 }
 
-const place = "Germany/Schleswig-Holstein/Lübeck"
+func getPlace() string {
+	fh, err := os.Open(os.ExpandEnv("$HOME/.startpage-weather"))
+	if err != nil {
+		panic(err)
+	}
+	defer fh.Close()
+
+	buf := new(bytes.Buffer)
+	if _, err := io.Copy(buf, fh); err != nil {
+		panic(err)
+	}
+	return strings.TrimSpace(string(buf.Bytes()))
+}
+
+var place = getPlace()
 
 func CurrentWeather() (Weather, Sun, error) {
 	url := "http://www.yr.no/place/" + place + "/forecast_hour_by_hour.xml"
