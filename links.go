@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bufio"
+	"errors"
 	"html/template"
-	"log"
-	"os"
-	"strings"
 )
 
 type Link struct {
@@ -13,22 +10,13 @@ type Link struct {
 	URL   template.URL
 }
 
-func GetLinks() (links []Link) {
-	fh, err := os.Open(os.ExpandEnv("$HOME/.startpage-urls"))
-	if err != nil {
-		log.Printf("Couldn't read links: %s", err)
-		return
-	}
-	defer fh.Close()
+var links = []Link{}
 
-	scanner := bufio.NewScanner(fh)
-	for scanner.Scan() {
-		parts := strings.SplitN(scanner.Text(), "->", 2)
-		links = append(links, Link{
-			strings.TrimSpace(parts[0]),
-			template.URL(strings.TrimSpace(parts[1])),
-		})
+func addLinkCmd(params []string) error {
+	if len(params) != 2 {
+		return errors.New("add-link needs 2 parameters: title url")
 	}
 
-	return
+	links = append(links, Link{params[0], template.URL(params[1])})
+	return nil
 }

@@ -90,11 +90,30 @@ func loadTemplate() {
 	panic(errors.New("could not find template in $GOPATH/src/github.com/kch42/startpage"))
 }
 
+func initCmds() {
+	RegisterCommand("add-link", addLinkCmd)
+	RegisterCommand("set-weather-place", setPlaceCmd)
+}
+
+func runConf() {
+	f, err := os.Open(os.ExpandEnv("$HOME/.startpagerc"))
+	if err != nil {
+		log.Fatalf("Could not open startpagerc: %s", err)
+	}
+	defer f.Close()
+
+	if err := RunCommands(f); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	laddr := flag.String("laddr", ":25145", "Listen on this port")
 	flag.Parse()
 
 	loadTemplate()
+	initCmds()
+	runConf()
 
 	pornch := make(chan bool)
 	weatherch := make(chan bool)

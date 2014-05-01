@@ -9,22 +9,26 @@ A simple start page with a background image from [/r/EarthPorn](http://www.reddi
 
 ## Configuration
 
-startpage uses two files in your home directory for configuration:
+The startpage configuration is located in the file ~/.startpagerc. It is a list of commands. A command has a name and can optionally have parameters separated by spaces or tabs. A backspace `\\` will interpret the next charcter literally (can be used to escape whitespace, linebreaks and backspaces). Commands are separated by newlines.
 
-### ~/.startpage-urls
+These commands are implemented:
 
-This describes the hyperlinks that are displayed on the startpage. A list of key-value-pairs. Each line is such a pair. Key and value are separated with `->`. The key is the title of the link, the value the URL.
+### `set-weather-place`
+
+Takes one argument, the place used for weather info. startpage uses [yr.no](http://www.yr.no) to get weather data. Use the search box on that page to search for your place. You will then be redirected to an URL like this: `http://www.yr.no/place/<myplace>`. Put the `<myplace>` part after the `set-weather-place` command like this:
+
+	set-weather-place <myplace>
+
+### `add-link`
+
+Add a link that is displayed on the startpage. First argument is the title, second one the URL.
 
 Example:
 
-	github -> http://www.github.com
-	reddit -> http://www.reddit.com
-	go -> http://www.golang.org
-	example -> http://www.example.org
-
-### ~/.startpage-weather
-
-The place for the weather is stored here. startpage uses [yr.no](http://www.yr.no) to get weather data. Use the search box on that page to search for your place. You will then be redirected to an URL like this: `http://www.yr.no/place/<myplace>`. Put the `<myplace>` part into the `.startpage-weather` file.
+	add-link github           http://www.github.com
+	add-link reddit           http://www.reddit.com
+	add-link go               http://www.golang.org
+	add-link another\ example http://www.example.org
 
 ## Running
 
