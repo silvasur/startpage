@@ -27,8 +27,9 @@ func earthPornUpdater(ch chan bool) {
 	for _ = range ch {
 		newporn, err := GetEarthPorn()
 		if err != nil {
-			log.Printf("Failed getting fap material: %s", err)
+			log.Print(err)
 			go trylater(ch)
+			continue
 		}
 
 		porn = newporn
@@ -42,6 +43,7 @@ func weatherUpdater(ch chan bool) {
 		if err != nil {
 			log.Printf("Failed getting latest weather data: %s", err)
 			go trylater(ch)
+			continue
 		}
 
 		weather = newW
