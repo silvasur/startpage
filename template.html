@@ -17,17 +17,36 @@
 				color: white;
 				text-decoration: underline;
 			}
-			* { font-family: "DejaVu Sans Light", sans-serif; }
-			#earthporninfo { position: fixed; bottom: 2mm; right: 10mm; font-size: 8pt; }
-			#earthporninfo a { background: black; }
-			#weather { position: fixed; top: 10mm; left: 10mm; }
-			#temp { position: absolute; top: 30px; left: 60px; font-size:70px; text-shadow: black 2px 2px; color: white;}
+			* {
+				font-family: "DejaVu Sans Light", sans-serif;
+				color: white;
+			}
+			#earthporninfo {
+				position: fixed;
+				bottom: 2mm;
+				right: 10mm;
+				font-size: 8pt;
+				background: black;
+			}
+			#weather {
+				position: fixed;
+				top: 10mm;
+				left: 10mm;
+			}
+			#temp {
+				position: absolute;
+				top: 30px;
+				left: 60px;
+				font-size:70px;
+				text-shadow: black 2px 2px;
+				color: white;
+			}
 			#links {
 				position: absolute;
 				top: 40%;
 				left: 20%;
-				columns: {{ .LCols }};
-				-moz-columns: {{ .LCols }};
+				columns: 2;
+				-moz-columns: 2;
 				padding: 5mm;
 				background: rgba(0,0,0,0.6);
 			}
@@ -55,8 +74,8 @@
 				{{ end }}
 			</ul>
 		</div>
-		<div id="earthporninfo">
+		<span id="earthporninfo">
 			<a href="http://reddit.com{{ .Porn.Permalink }}">{{ .Porn.Title }}</a>
-		</div>
+		</span>
 	</body>
 </html>

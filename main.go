@@ -135,19 +135,11 @@ type TplData struct {
 	Porn    *EarthPorn
 	Weather *Weather
 	Links   []Link
-	LCols   int
 }
 
 func startpage(rw http.ResponseWriter, req *http.Request) {
-	links := GetLinks()
-	lcols := len(links) / 3
-	if lcols < 1 {
-		lcols = 1
-	} else if lcols > 4 {
-		lcols = 4
-	}
 
-	if err := tpl.Execute(rw, &TplData{&porn, &weather, links, lcols}); err != nil {
+	if err := tpl.Execute(rw, &TplData{&porn, &weather, links}); err != nil {
 		log.Printf("Failed executing template: %s\n", err)
 	}
 }
