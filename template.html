@@ -76,6 +76,8 @@
 		</div>
 		<span id="earthporninfo">
 			<a href="http://reddit.com{{ .Porn.Permalink }}">{{ .Porn.Title }}</a>
+			|
+			{{ if .Porn.Saved }}saved{{ else }}<a href="/savebg">save</a>{{ end }}
 		</span>
 	</body>
 </html>

@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"mime"
 	"net/http"
+	"os"
+	"path"
 	"strings"
 )
 
@@ -24,6 +27,7 @@ type EarthPorn struct {
 	URL       string `json:"url,omitempty"`
 	Permalink string `json:"permalink"`
 	Domain    string `json:"domain"`
+	Saved     bool
 	data      []byte
 	mediatype string
 }
@@ -98,4 +102,48 @@ func (p *EarthPorn) fetch() bool {
 	p.data = buf.Bytes()
 	return true
 }
+
+var extensions = map[string]string{
+	"image/png":      "png",
+	"image/jpeg":     "jpg",
+	"image/gif":      "gif",
+	"image/x-ms-bmp": "bmp",
+	"image/x-bmp":    "bmp",
+	"image/bmp":      "bmp",
+	"image/tiff":     "tiff",
+	"image/tiff-fx":  "tiff",
+	"image/x-targa":  "tga",
+	"image/x-tga":    "tga",
+	"image/webp":     "webp",
+}
+
+var savepath = ""
+
+func setSavepathCmd(params []string) error {
+	if len(params) != 1 {
+		return errors.New("set-earthporn-savepath needs one parameter")
+	}
+
+	savepath = params[0]
+	return nil
+}
+
+func (p *EarthPorn) save() error {
+	ext := extensions[p.mediatype]
+	pp := strings.Split(p.Permalink, "/")
+	threadid := pp[len(pp)-3]
+	title := strings.Replace(p.Title, "/", "-", -1)
+	f, err := os.Create(path.Join(savepath, threadid+" - "+title+"."+ext))
+	if err != nil {
+		return fmt.Errorf("Could not save earthporn: %s", err)
+	}
+	defer f.Close()
+
+	if _, err := f.Write(p.data); err != nil {
+		return fmt.Errorf("Could not save earthporn: %s", err)
+	}
+
+	p.Saved = true
+
+	return nil
 }

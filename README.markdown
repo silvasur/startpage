@@ -30,6 +30,14 @@ Example:
 	add-link go               http://www.golang.org
 	add-link another\ example http://www.example.org
 
+### `set-earthporn-savepath`
+
+Sets the diretory to save EarthPorn images to.
+
+Example:
+
+	set-earthporn-savepath /home/foobar/Pictures/earthporn
+
 ## Running
 
 If `$GOPATH/bin` is in your `$PATH`, you can run startpage with the command `startpage`. By default, startpage listens on port 25145. You can change that with a command line switch: `startpage -laddr :<port>`

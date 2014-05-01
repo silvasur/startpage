@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -92,6 +93,7 @@ func loadTemplate() {
 
 func initCmds() {
 	RegisterCommand("add-link", addLinkCmd)
+	RegisterCommand("set-earthporn-savepath", setSavepathCmd)
 	RegisterCommand("set-weather-place", setPlaceCmd)
 }
 
@@ -129,6 +131,7 @@ func main() {
 
 	http.HandleFunc("/", startpage)
 	http.HandleFunc("/bgimg", bgimg)
+	http.HandleFunc("/savebg", savebg)
 	log.Fatal(http.ListenAndServe(*laddr, nil))
 }
 
@@ -139,6 +142,7 @@ type TplData struct {
 }
 
 func startpage(rw http.ResponseWriter, req *http.Request) {
+	defer req.Body.Close()
 
 	if err := tpl.Execute(rw, &TplData{&porn, &weather, links}); err != nil {
 		log.Printf("Failed executing template: %s\n", err)
@@ -158,3 +162,19 @@ func bgimg(rw http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func savebg(rw http.ResponseWriter, req *http.Request) {
+	defer req.Body.Close()
+
+	if len(porn.data) == 0 {
+		fmt.Fprintln(rw, "No earth porn available")
+		return
+	}
+
+	if err := (&porn).save(); err != nil {
+		log.Println(err)
+		fmt.Fprintln(rw, err)
+	}
+
+	rw.Header().Add("Location", "/")
+	rw.WriteHeader(http.StatusFound)
+}
