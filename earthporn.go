@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
+	"log"
 	"mime"
 	"net/http"
 	"strings"
@@ -21,6 +24,8 @@ type EarthPorn struct {
 	URL       string `json:"url,omitempty"`
 	Permalink string `json:"permalink"`
 	Domain    string `json:"domain"`
+	data      []byte
+	mediatype string
 }
 
 const earthPornURL = "http://www.reddit.com/r/EarthPorn.json"
@@ -49,19 +54,19 @@ func GetEarthPorn() (EarthPorn, error) {
 			continue
 		}
 
-		if (&p).getImageURL() {
-			return p, nil
+		if p.fetch() {
+			return *p, nil
 		}
 	}
 
 	return EarthPorn{}, errors.New("Could not get EarthPorn: No image could be extracted")
 }
 
-func (p *EarthPorn) getImageURL() bool {
+func (p *EarthPorn) fetch() bool {
 	// TODO: We can do further processing here (e.g. if we get a link to flickr, extract the image).
 	// For now, we will simply test, if the URL points to an image.
 
-	resp, err := http.Head(p.URL)
+	resp, err := http.Get(p.URL)
 	if err != nil {
 		return false
 	}
@@ -69,12 +74,28 @@ func (p *EarthPorn) getImageURL() bool {
 
 	t := resp.Header.Get("Content-Type")
 	if t == "" {
+		log.Printf("could not get image of %s: no Content-Type", p.Permalink)
 		return false
 	}
 	mt, _, err := mime.ParseMediaType(t)
 	if err != nil {
+		log.Printf("could not get image of %s: %s", p.Permalink, err)
 		return false
 	}
 
-	return (strings.Split(mt, "/")[0] == "image")
+	if strings.Split(mt, "/")[0] != "image" {
+		log.Printf("could not get image of %s: not an image", p.Permalink)
+		return false
+	}
+
+	buf := new(bytes.Buffer)
+	if _, err := io.Copy(buf, resp.Body); err != nil {
+		log.Printf("could not get image of %s: %s", p.Permalink, err)
+		return false
+	}
+
+	p.mediatype = t
+	p.data = buf.Bytes()
+	return true
+}
 }

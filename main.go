@@ -128,6 +128,7 @@ func main() {
 	}(stopch)
 
 	http.HandleFunc("/", startpage)
+	http.HandleFunc("/bgimg", bgimg)
 	log.Fatal(http.ListenAndServe(*laddr, nil))
 }
 
@@ -143,3 +144,17 @@ func startpage(rw http.ResponseWriter, req *http.Request) {
 		log.Printf("Failed executing template: %s\n", err)
 	}
 }
+
+func bgimg(rw http.ResponseWriter, req *http.Request) {
+	defer req.Body.Close()
+
+	if len(porn.data) == 0 {
+		rw.WriteHeader(http.StatusNotFound)
+	}
+
+	rw.Header().Add("Content-Type", porn.mediatype)
+	if _, err := rw.Write(porn.data); err != nil {
+		log.Printf("Failed serving background: %s", err)
+	}
+}
+
