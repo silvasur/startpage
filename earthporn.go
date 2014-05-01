@@ -11,7 +11,7 @@ import (
 type redditList struct {
 	Data struct {
 		Children []struct {
-			Data EarthPorn `json:"data"`
+			Data *EarthPorn `json:"data"`
 		} `json:"children"`
 	} `json:"data"`
 }
@@ -20,6 +20,7 @@ type EarthPorn struct {
 	Title     string `json:"title"`
 	URL       string `json:"url,omitempty"`
 	Permalink string `json:"permalink"`
+	Domain    string `json:"domain"`
 }
 
 const earthPornURL = "http://www.reddit.com/r/EarthPorn.json"
@@ -39,6 +40,11 @@ func GetEarthPorn() (EarthPorn, error) {
 
 	for _, el := range list.Data.Children {
 		p := el.Data
+
+		if p.Domain == "self.EarthPorn" {
+			continue
+		}
+
 		if p.URL == "" {
 			continue
 		}
