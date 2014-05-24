@@ -128,11 +128,19 @@ func setSavepathCmd(params []string) error {
 	return nil
 }
 
+const maxTitleLenInFilename = 100
+
 func (p *EarthPorn) save() error {
 	ext := extensions[p.mediatype]
 	pp := strings.Split(p.Permalink, "/")
 	threadid := pp[len(pp)-3]
+
 	title := strings.Replace(p.Title, "/", "-", -1)
+	tRunes := []rune(title)
+	if len(tRunes) > maxTitleLenInFilename {
+		title = string(tRunes[0:maxTitleLenInFilename])
+	}
+
 	f, err := os.Create(path.Join(savepath, threadid+" - "+title+"."+ext))
 	if err != nil {
 		return fmt.Errorf("Could not save earthporn: %s", err)
