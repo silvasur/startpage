@@ -97,6 +97,7 @@ func initCmds() {
 	RegisterCommand("add-link", addLinkCmd)
 	RegisterCommand("set-earthporn-savepath", setSavepathCmd)
 	RegisterCommand("set-weather-place", setPlaceCmd)
+	RegisterCommand("set-maxdim", setMaxdimCmd)
 }
 
 func runConf() {

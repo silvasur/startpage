@@ -122,6 +122,7 @@ func setMaxdimCmd(params []string) error {
 	if err != nil {
 		return fmt.Errorf("1st parameter of set-maxdim could not be parsed as a number: %s", err)
 	}
+	maxdim = int(newmaxdim)
 
 	return nil
 }
