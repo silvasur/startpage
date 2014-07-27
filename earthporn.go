@@ -5,12 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/nfnt/resize"
+	"image"
+	_ "image/gif"
+	"image/jpeg"
+	_ "image/png"
 	"io"
 	"log"
 	"mime"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -23,13 +29,13 @@ type redditList struct {
 }
 
 type EarthPorn struct {
-	Title     string `json:"title"`
-	URL       string `json:"url,omitempty"`
-	Permalink string `json:"permalink"`
-	Domain    string `json:"domain"`
-	Saved     bool
-	data      []byte
-	mediatype string
+	Title          string `json:"title"`
+	URL            string `json:"url,omitempty"`
+	Permalink      string `json:"permalink"`
+	Domain         string `json:"domain"`
+	Saved          bool
+	data, origdata []byte
+	mediatype      string
 }
 
 const earthPornURL = "http://www.reddit.com/r/EarthPorn.json"
@@ -99,8 +105,60 @@ func (p *EarthPorn) fetch() bool {
 	}
 
 	p.mediatype = t
-	p.data = buf.Bytes()
+	p.origdata = buf.Bytes()
+	p.data = p.origdata
+	p.resize()
 	return true
+}
+
+var maxdim = 2500
+
+func setMaxdimCmd(params []string) error {
+	if len(params) != 1 {
+		return errors.New("set-maxdim needs one parameter, which must be a positive number")
+	}
+
+	newmaxdim, err := strconv.ParseUint(params[0], 10, 32)
+	if err != nil {
+		return fmt.Errorf("1st parameter of set-maxdim could not be parsed as a number: %s", err)
+	}
+
+	return nil
+}
+
+// resize resizes image, if it's very large
+func (p *EarthPorn) resize() {
+	im, _, err := image.Decode(bytes.NewReader(p.origdata))
+	if err != nil {
+		log.Printf("Failed decoding in resize(): %s", err)
+		return
+	}
+
+	size := im.Bounds().Size()
+	if !(size.X > maxdim || size.Y > maxdim) {
+		return
+	}
+
+	var w, h int
+	if size.X > size.Y {
+		h = maxdim * (size.Y / size.X)
+		w = maxdim
+	} else {
+		w = maxdim * (size.X / size.Y)
+		h = maxdim
+	}
+
+	im = resize.Resize(uint(w), uint(h), im, resize.Bicubic)
+
+	buf := new(bytes.Buffer)
+
+	if err := jpeg.Encode(buf, im, &jpeg.Options{Quality: 90}); err != nil {
+		log.Printf("Failed encoding in resize(): %s", err)
+		return
+	}
+
+	p.data = buf.Bytes()
+	p.mediatype = "image/jpeg"
 }
 
 var extensions = map[string]string{
@@ -147,7 +205,7 @@ func (p *EarthPorn) save() error {
 	}
 	defer f.Close()
 
-	if _, err := f.Write(p.data); err != nil {
+	if _, err := f.Write(p.origdata); err != nil {
 		return fmt.Errorf("Could not save earthporn: %s", err)
 	}
 

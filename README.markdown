@@ -9,7 +9,7 @@ A simple start page with a background image from [/r/EarthPorn](http://www.reddi
 
 ## Configuration
 
-The startpage configuration is located in the file ~/.startpagerc. It is a list of commands. A command has a name and can optionally have parameters separated by spaces or tabs. A backspace `\\` will interpret the next charcter literally (can be used to escape whitespace, linebreaks and backspaces). Commands are separated by newlines.
+The startpage configuration is located in the file ~/.startpagerc. It is a list of commands. A command has a name and can optionally have parameters separated by spaces or tabs. A backspace `\` will interpret the next charcter literally (can be used to escape whitespace, linebreaks and backspaces). Commands are separated by newlines.
 
 These commands are implemented:
 
@@ -37,6 +37,14 @@ Sets the diretory to save EarthPorn images to.
 Example:
 
 	set-earthporn-savepath /home/foobar/Pictures/earthporn
+
+### `set-maxdim`
+
+Sets the maximum width/height of an EarthPorn image. If the image is larger, it will be resized for the background (it will be saved in it's original size).
+
+Example:
+
+	set-maxdim 4000
 
 ## Running
 
