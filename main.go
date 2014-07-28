@@ -15,7 +15,6 @@ import (
 
 var porn EarthPorn
 var weather Weather
-var sun Sun
 
 func trylater(ch chan<- bool) {
 	log.Println("Will try again later...")
@@ -39,7 +38,7 @@ func earthPornUpdater(ch chan bool) {
 
 func weatherUpdater(ch chan bool) {
 	for _ = range ch {
-		newW, newS, err := CurrentWeather()
+		newW, err := CurrentWeather()
 		if err != nil {
 			log.Printf("Failed getting latest weather data: %s", err)
 			go trylater(ch)
@@ -47,7 +46,6 @@ func weatherUpdater(ch chan bool) {
 		}
 
 		weather = newW
-		sun = newS
 		log.Println("New weather data")
 	}
 }

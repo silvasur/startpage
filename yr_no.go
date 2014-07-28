@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -13,48 +12,26 @@ func toTime(s string) time.Time {
 	return t
 }
 
+type Temperature struct {
+	Value int    `xml:"value,attr"`
+	Unit  string `xml:"unit,attr"`
+}
+
 type Weather struct {
 	Temp   Temperature `xml:"temperature"`
 	Symbol struct {
-		Number int `xml:"number,attr"`
+		Var string `xml:"var,attr"`
 	} `xml:"symbol"`
 	From string `xml:"from,attr"`
 	URL  string
 	Icon string
 }
 
-func (w *Weather) prepIcon(sun Sun) {
-	rise := toTime(sun.Rise)
-	set := toTime(sun.Set)
-	t := toTime(w.From)
-
-	night := t.Before(rise) || t.After(set)
-	format := "http://symbol.yr.no/grafikk/sym/b100/%02d"
-	switch w.Symbol.Number {
-	case 1, 2, 3, 5, 6, 7, 8, 20, 21:
-		if night {
-			format += "n"
-		} else {
-			format += "d"
-		}
-	}
-	format += ".png"
-
-	w.Icon = fmt.Sprintf(format, w.Symbol.Number)
-}
-
-type Temperature struct {
-	Value int    `xml:"value,attr"`
-	Unit  string `xml:"unit,attr"`
-}
-
-type Sun struct {
-	Rise string `xml:"rise,attr"`
-	Set  string `xml:"set,attr"`
+func (w *Weather) prepIcon() {
+	w.Icon = "http://symbol.yr.no/grafikk/sym/b100/" + w.Symbol.Var + ".png"
 }
 
 type weatherdata struct {
-	Sun      Sun        `xml:"sun"`
 	Forecast []*Weather `xml:"forecast>tabular>time"`
 }
 
@@ -69,23 +46,23 @@ func setPlaceCmd(params []string) error {
 	return nil
 }
 
-func CurrentWeather() (Weather, Sun, error) {
+func CurrentWeather() (Weather, error) {
 	url := "http://www.yr.no/place/" + place + "/forecast_hour_by_hour.xml"
 	resp, err := http.Get(url)
 	if err != nil {
-		return Weather{}, Sun{}, err
+		return Weather{}, err
 	}
 	defer resp.Body.Close()
 
 	var wd weatherdata
 	dec := xml.NewDecoder(resp.Body)
 	if err := dec.Decode(&wd); err != nil {
-		return Weather{}, Sun{}, err
+		return Weather{}, err
 	}
 
 	w := wd.Forecast[0]
 	w.URL = "http://www.yr.no/place/" + place
-	w.prepIcon(wd.Sun)
+	w.prepIcon()
 
-	return *w, wd.Sun, nil
+	return *w, nil
 }
