@@ -67,13 +67,15 @@
 			<a href="{{ .Weather.URL }}"><img src="{{ .Weather.Icon }}" alt="" /></a>
 			<span id="temp">{{ .Weather.Temp.Value }}°</span>
 		</div>
-		<div id="links">
-			<ul>
-				{{ range .Links }}
-					<li><a href="{{ .URL }}">{{ .Title }}</a></li>
-				{{ end }}
-			</ul>
-		</div>
+		{{ if .Links }}
+			<div id="links">
+				<ul>
+					{{ range .Links }}
+						<li><a href="{{ .URL }}">{{ .Title }}</a></li>
+					{{ end }}
+				</ul>
+			</div>
+		{{ end }}
 		<span id="earthporninfo">
 			<a href="http://reddit.com{{ .Porn.Permalink }}">{{ .Porn.Title }}</a>
 			|
