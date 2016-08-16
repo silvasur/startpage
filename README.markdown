@@ -5,7 +5,7 @@ A simple start page with a background image from [/r/EarthPorn](http://www.reddi
 
 ## Installation
 
-`go get github.com/kch42/startpage`
+`go get github.com/silvasur/startpage`
 
 ## Configuration
 

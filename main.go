@@ -82,13 +82,13 @@ func loadTemplate() {
 	gopaths := strings.Split(os.Getenv("GOPATH"), ":")
 	for _, p := range gopaths {
 		var err error
-		tpl, err = template.ParseFiles(path.Join(p, "src", "github.com", "kch42", "startpage", "template.html"))
+		tpl, err = template.ParseFiles(path.Join(p, "src", "github.com", "silvasur", "startpage", "template.html"))
 		if err == nil {
 			return
 		}
 	}
 
-	panic(errors.New("could not find template in $GOPATH/src/github.com/kch42/startpage"))
+	panic(errors.New("could not find template in $GOPATH/src/github.com/silvasur/startpage"))
 }
 
 func initCmds() {
