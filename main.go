@@ -11,10 +11,11 @@ import (
 	"path"
 	"strings"
 	"time"
+	"github.com/silvasur/startpage/weather"
 )
 
 var porn EarthPorn
-var weather Weather
+var curWeather weather.Weather
 
 func trylater(ch chan<- bool) {
 	log.Println("Will try again later...")
@@ -36,16 +37,27 @@ func earthPornUpdater(ch chan bool) {
 	}
 }
 
+var place = ""
+
+func setPlaceCmd(params []string) error {
+	if len(params) != 1 {
+		return errors.New("set-weather-place needs one parameter")
+	}
+
+	place = params[0]
+	return nil
+}
+
 func weatherUpdater(ch chan bool) {
 	for _ = range ch {
-		newW, err := CurrentWeather()
+		newW, err := weather.CurrentWeather(place)
 		if err != nil {
 			log.Printf("Failed getting latest weather data: %s", err)
 			go trylater(ch)
 			continue
 		}
 
-		weather = newW
+		curWeather = newW
 		log.Println("New weather data")
 	}
 }
@@ -138,14 +150,14 @@ func main() {
 
 type TplData struct {
 	Porn    *EarthPorn
-	Weather *Weather
+	Weather *weather.Weather
 	Links   []Link
 }
 
 func startpage(rw http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 
-	if err := tpl.Execute(rw, &TplData{&porn, &weather, links}); err != nil {
+	if err := tpl.Execute(rw, &TplData{&porn, &curWeather, links}); err != nil {
 		log.Printf("Failed executing template: %s\n", err)
 	}
 }

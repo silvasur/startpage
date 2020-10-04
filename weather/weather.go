@@ -1,8 +1,8 @@
-package main
+// Package weather provides functions to retrieve eweather forecast data from yr.no
+package weather
 
 import (
 	"encoding/xml"
-	"errors"
 	"net/http"
 	"time"
 )
@@ -35,18 +35,7 @@ type weatherdata struct {
 	Forecast []*Weather `xml:"forecast>tabular>time"`
 }
 
-var place = ""
-
-func setPlaceCmd(params []string) error {
-	if len(params) != 1 {
-		return errors.New("set-weather-place needs one parameter")
-	}
-
-	place = params[0]
-	return nil
-}
-
-func CurrentWeather() (Weather, error) {
+func CurrentWeather(place string) (Weather, error) {
 	url := "http://www.yr.no/place/" + place + "/forecast_hour_by_hour.xml"
 	resp, err := http.Get(url)
 	if err != nil {
