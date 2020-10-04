@@ -21,11 +21,20 @@
 				font-family: "DejaVu Sans Light", sans-serif;
 				color: white;
 			}
+			footer {
+				font-size: 8pt;
+			}
+			#yr_no_credit {
+				position: fixed;
+				display: inline-block;
+				bottom: 2mm;
+				left: 10mm;
+				background: black;
+			}
 			#earthporninfo {
 				position: fixed;
 				bottom: 2mm;
 				right: 10mm;
-				font-size: 8pt;
 				background: black;
 			}
 			#weather {
@@ -76,10 +85,16 @@
 				</ul>
 			</div>
 		{{ end }}
-		<span id="earthporninfo">
-			<a href="http://reddit.com{{ .Porn.Permalink }}">{{ .Porn.Title }}</a>
-			|
-			{{ if .Porn.Saved }}saved{{ else }}<a href="/savebg">save</a>{{ end }}
-		</span>
+
+
+		<footer>
+			<div id="yr_no_credit">Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and NRK</div>
+
+			<span id="earthporninfo">
+				<a href="http://reddit.com{{ .Porn.Permalink }}">{{ .Porn.Title }}</a>
+				|
+				{{ if .Porn.Saved }}saved{{ else }}<a href="/savebg">save</a>{{ end }}
+			</span>
+		</footer>
 	</body>
 </html>
