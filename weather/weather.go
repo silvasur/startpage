@@ -3,7 +3,9 @@ package weather
 
 import (
 	"encoding/xml"
-	"net/http"
+	"github.com/silvasur/startpage/http_getter"
+	"github.com/silvasur/startpage/interval"
+	"log"
 	"time"
 )
 
@@ -35,33 +37,60 @@ type weatherdata struct {
 	Forecast []*Weather `xml:"forecast>tabular>time"`
 }
 
-func CurrentWeather(place string) (Weather, error) {
+func CurrentWeather(place string) (*Weather, error) {
 	url := "http://www.yr.no/place/" + place + "/forecast_hour_by_hour.xml"
 
-	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := http_getter.Get(url)
 	if err != nil {
-		return Weather{}, err
-	}
-
-	req.Header.Add("User-Agent", "github.com/slivasur/startpage/weather")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return Weather{}, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var wd weatherdata
 	dec := xml.NewDecoder(resp.Body)
 	if err := dec.Decode(&wd); err != nil {
-		return Weather{}, err
+		return nil, err
 	}
 
 	w := wd.Forecast[0]
 	w.URL = "http://www.yr.no/place/" + place
 	w.prepIcon()
 
-	return *w, nil
+	return w, nil
+}
+
+type WeatherProvider struct {
+	place          string
+	intervalRunner *interval.IntervalRunner
+	weather        *Weather
+	err            error
+}
+
+const (
+	UPDATE_INTERVAL = 30 * time.Minute
+	RETRY_INTERVAL  = 1 * time.Minute
+)
+
+func NewWeatherProvider(place string) *WeatherProvider {
+	return &WeatherProvider{
+		place:          place,
+		intervalRunner: interval.NewIntervalRunner(UPDATE_INTERVAL, RETRY_INTERVAL),
+	}
+}
+
+func (wp *WeatherProvider) CurrentWeather() (*Weather, error) {
+	wp.intervalRunner.Run(func() bool {
+		log.Printf("Getting new weather data")
+		wp.weather, wp.err = CurrentWeather(wp.place)
+
+		if wp.err == nil {
+			log.Printf("Successfully loaded weather data")
+		} else {
+			log.Printf("Failed loading weather data: %s", wp.err)
+		}
+
+		return wp.err == nil
+	})
+
+	return wp.weather, wp.err
 }

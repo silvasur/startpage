@@ -1,4 +1,4 @@
-A simple start page with a background image from [/r/EarthPorn](http://www.reddit.com/r/earthporn), weather from [yr.no](http://www.yr.no) and customizable links.
+A simple start page with a background image from a subreddit ([/r/EarthPorn](http://www.reddit.com/r/earthporn) by default), weather from [yr.no](http://www.yr.no) and customizable links.
 
 ## Screenshot
 ![Screenshot](http://i.imgur.com/u42QOZe.png)
@@ -9,42 +9,31 @@ A simple start page with a background image from [/r/EarthPorn](http://www.reddi
 
 ## Configuration
 
-The startpage configuration is located in the file ~/.startpagerc. It is a list of commands. A command has a name and can optionally have parameters separated by spaces or tabs. A backspace `\` will interpret the next charcter literally (can be used to escape whitespace, linebreaks and backspaces). Commands are separated by newlines.
+The optional startpage configuration is a JSON file located at `~/.config/startpage/config.json`.
 
-These commands are implemented:
+Here is an example with all fields filled out.
 
-### `set-weather-place`
+    {
+        // The place for which to get the weather data. If omitted, no weather will be shown
+        "WeatherPlace": "Germany/Hamburg/Hamburg",
 
-Takes one argument, the place used for weather info. startpage uses [yr.no](http://www.yr.no) to get weather data. Use the search box on that page to search for your place. You will then be redirected to an URL like this: `http://www.yr.no/place/<myplace>`. Put the `<myplace>` part after the `set-weather-place` command like this:
+        // A list of links to show. Can be omitted.
+        "Links": [
+            {
+                "Title": "example",
+                "URL": "https://www.example.com"
+            }
+        ],
 
-	set-weather-place <myplace>
+        // If set, background images can be saved here
+        "BackgroundSavepath": "/home/laria/Pictures/cool-backgrounds",
 
-### `add-link`
+        // If set, this limits the background image size, the default is DEFAULT_BACKGROUND_MAXDIM (=2500)
+        "BackgroundMaxdim": 4000,
 
-Add a link that is displayed on the startpage. First argument is the title, second one the URL.
-
-Example:
-
-	add-link github           http://www.github.com
-	add-link reddit           http://www.reddit.com
-	add-link go               http://www.golang.org
-	add-link another\ example http://www.example.org
-
-### `set-earthporn-savepath`
-
-Sets the diretory to save EarthPorn images to.
-
-Example:
-
-	set-earthporn-savepath /home/foobar/Pictures/earthporn
-
-### `set-maxdim`
-
-Sets the maximum width/height of an EarthPorn image. If the image is larger, it will be resized for the background (it will be saved in it's original size).
-
-Example:
-
-	set-maxdim 4000
+        // Get background images from this subreddit. Defaults to "EarthPorn"
+        "ImageSubreddit": "ruralporn"
+    }
 
 ## Running
 

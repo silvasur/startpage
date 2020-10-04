@@ -4,11 +4,16 @@
 		<title>Startpage</title>
 		<style type="text/css">
 			body {
-				background: black url(/bgimg) no-repeat center center fixed;
+				background: grey;
 				-moz-background-size: cover;
 				-o-background-size: cover;
 				background-size: cover;
 			}
+			{{ if .BgImage }}
+				body {
+					background: black url(/bgimg) no-repeat center center fixed;
+				}
+			{{ end }}
 			a {
 				color: #eee;
 				text-decoration: none;
@@ -31,7 +36,7 @@
 				left: 10mm;
 				background: black;
 			}
-			#earthporninfo {
+			#imageinfo {
 				position: fixed;
 				bottom: 2mm;
 				right: 10mm;
@@ -72,10 +77,12 @@
 		</style>
 	</head>
 	<body>
-		<div id="weather">
-			<a href="{{ .Weather.URL }}"><img src="{{ .Weather.Icon }}" alt="" /></a>
-			<span id="temp">{{ .Weather.Temp.Value }}°</span>
-		</div>
+		{{ if .Weather }}
+			<div id="weather">
+				<a href="{{ .Weather.URL }}"><img src="{{ .Weather.Icon }}" alt="" /></a>
+				<span id="temp">{{ .Weather.Temp.Value }}°</span>
+			</div>
+		{{ end }}
 		{{ if .Links }}
 			<div id="links">
 				<ul>
@@ -88,13 +95,17 @@
 
 
 		<footer>
-			<div id="yr_no_credit">Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and NRK</div>
+			{{ if .Weather }}
+				<div id="yr_no_credit">Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and NRK</div>
+			{{ end }}
 
-			<span id="earthporninfo">
-				<a href="http://reddit.com{{ .Porn.Permalink }}">{{ .Porn.Title }}</a>
-				|
-				{{ if .Porn.Saved }}saved{{ else }}<a href="/savebg">save</a>{{ end }}
-			</span>
+			{{ if .BgImage }}
+				<span id="imageinfo">
+					<a href="http://reddit.com{{ .BgImage.Permalink }}">{{ .BgImage.Title }}</a>{{ if .CanSaveBg}}
+						| {{ if .BgImage.Saved }}saved{{ else }}<a href="/savebg">save</a>{{ end }}
+					{{ end }}
+				</span>
+			{{ end}}
 		</footer>
 	</body>
 </html>
