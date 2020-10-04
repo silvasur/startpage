@@ -37,7 +37,17 @@ type weatherdata struct {
 
 func CurrentWeather(place string) (Weather, error) {
 	url := "http://www.yr.no/place/" + place + "/forecast_hour_by_hour.xml"
-	resp, err := http.Get(url)
+
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return Weather{}, err
+	}
+
+	req.Header.Add("User-Agent", "github.com/slivasur/startpage/weather")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return Weather{}, err
 	}
