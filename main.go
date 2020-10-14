@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -61,6 +62,7 @@ func main() {
 
 	http.HandleFunc("/", startpage(*config, redditImageProvider))
 	http.HandleFunc("/bgimg", bgimg(redditImageProvider))
+	http.HandleFunc("/update-bgimg", updateBgimg(redditImageProvider))
 
 	if config.BackgroundSavepath != "" {
 		http.HandleFunc("/savebg", savebg(redditImageProvider, config.BackgroundSavepath))
@@ -70,7 +72,7 @@ func main() {
 }
 
 type TplData struct {
-	BgImage   *reddit_background.RedditImage
+	BgImage   *reddit_background.RedditImageForAjax
 	Weather   *weather.Weather
 	Links     []Link
 	CanSaveBg bool
@@ -91,7 +93,7 @@ func startpage(config Config, redditImageProvider *reddit_background.RedditImage
 		}
 
 		if err := tpl.Execute(rw, &TplData{
-			redditImageProvider.Image(),
+			redditImageProvider.Image().ForAjax(),
 			curWeather,
 			config.Links,
 			config.BackgroundSavepath != "",
@@ -115,6 +117,23 @@ func bgimg(redditImageProvider *reddit_background.RedditImageProvider) http.Hand
 		if _, err := rw.Write(image.Data); err != nil {
 			log.Printf("Failed serving background: %s", err)
 		}
+	}
+}
+
+func updateBgimg(redditImageProvider *reddit_background.RedditImageProvider) http.HandlerFunc {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		defer req.Body.Close()
+
+		updated := redditImageProvider.UpdateImage()
+
+		rw.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(rw).Encode(struct {
+			Updated bool
+			Image   *reddit_background.RedditImageForAjax
+		}{
+			updated,
+			redditImageProvider.Image().ForAjax(),
+		})
 	}
 }
 

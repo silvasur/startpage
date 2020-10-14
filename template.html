@@ -4,16 +4,17 @@
 		<title>Startpage</title>
 		<style type="text/css">
 			body {
-				background: grey;
+				background-color: grey;
+				background-image: none;
+				background-repeat: no-repeat;
+				background-position: center center;
+				background-attachment: fixed;
+
 				-moz-background-size: cover;
 				-o-background-size: cover;
 				background-size: cover;
+				transition: background-color 0.5s, background-image 0.5s;
 			}
-			{{ if .BgImage }}
-				body {
-					background: black url(/bgimg) no-repeat center center fixed;
-				}
-			{{ end }}
 			a {
 				color: #eee;
 				text-decoration: none;
@@ -76,7 +77,7 @@
 			}
 		</style>
 	</head>
-	<body>
+	<body {{ if .BgImage }} style="background-color: black; background-image: url(/bgimg);"{{ end }}>
 		{{ if .Weather }}
 			<div id="weather">
 				<a href="{{ .Weather.URL }}"><img src="{{ .Weather.Icon }}" alt="" /></a>
@@ -99,13 +100,53 @@
 				<div id="yr_no_credit">Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and NRK</div>
 			{{ end }}
 
-			{{ if .BgImage }}
-				<span id="imageinfo">
-					<a href="http://reddit.com{{ .BgImage.Permalink }}">{{ .BgImage.Title }}</a>{{ if .CanSaveBg}}
-						| {{ if .BgImage.Saved }}saved{{ else }}<a href="/savebg">save</a>{{ end }}
-					{{ end }}
-				</span>
-			{{ end}}
+			<span id="imageinfo"></span>
 		</footer>
+
+		<script type="text/javascript">
+			var CanSaveBg = {{ .CanSaveBg }};
+
+			function link(href, text) {
+				var a = document.createElement("a");
+				a.href = href;
+				a.innerText = text;
+				return a;
+			}
+
+			function updateImageInfo(image) {
+				var imageinfo = document.getElementById("imageinfo");
+				imageinfo.innerHTML = "";
+				imageinfo.appendChild(link("http://reddit.com" + image.Permalink, image.Title));
+				if (CanSaveBg) {
+					imageinfo.appendChild(document.createTextNode(" | "));
+					if (image.Saved) {
+						imageinfo.appendChild(document.createTextNode("saved"));
+					} else {
+						imageinfo.appendChild(link("/savebg", "save"));
+					}
+				}
+			}
+
+			{{ if .BgImage }}
+				updateImageInfo({{ .BgImage }});
+			{{ end }}
+
+			var xhr = new XMLHttpRequest();
+			xhr.addEventListener("load", function () {
+				if (!xhr.response.Updated) {
+					return;
+				}
+
+				var bodyStyle = document.body.style;
+				bodyStyle.setProperty("background-image", "url(/bgimg?rand=" + Math.random() + ")");
+				bodyStyle.setProperty("background-color", "black");
+
+				updateImageInfo(xhr.response.Image);
+			});
+
+			xhr.open("GET", "/update-bgimg");
+			xhr.responseType = "json";
+			xhr.send();
+		</script>
 	</body>
 </html>

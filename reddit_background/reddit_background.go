@@ -41,6 +41,23 @@ type RedditImage struct {
 	Mediatype string `json:"-"`
 }
 
+type RedditImageForAjax struct {
+	Permalink string
+	Title     string
+	Saved     bool
+}
+
+func (ri *RedditImage) ForAjax() *RedditImageForAjax {
+	if ri == nil {
+		return nil
+	}
+	return &RedditImageForAjax{
+		Permalink: ri.Permalink,
+		Title:     ri.Title,
+		Saved:     ri.Saved,
+	}
+}
+
 func GetRedditImage(maxsize int, subreddit string) (*RedditImage, error) {
 	subredditUrl := fmt.Sprintf("https://www.reddit.com/r/%s.json", subreddit)
 
@@ -211,21 +228,28 @@ func NewRedditImageProvider(maxsize int, subreddit string) *RedditImageProvider 
 	}
 }
 
-func (rip *RedditImageProvider) Image() *RedditImage {
+func (rip *RedditImageProvider) UpdateImage() bool {
+	updated := false
+
 	rip.intervalRunner.Run(func() bool {
 		log.Printf("Getting new RedditImage")
 
-		var err error
-		rip.image, err = GetRedditImage(rip.maxsize, rip.subreddit)
+		image, err := GetRedditImage(rip.maxsize, rip.subreddit)
 
-		if err == nil {
-			log.Printf("Successfully loaded RedditImage")
-		} else {
+		if err != nil {
 			log.Printf("Failed loading RedditImage: %s", err)
+			return false
 		}
 
-		return err == nil
+		log.Printf("Successfully loaded RedditImage")
+		rip.image = image
+		updated = true
+		return true
 	})
 
+	return updated
+}
+
+func (rip *RedditImageProvider) Image() *RedditImage {
 	return rip.image
 }
