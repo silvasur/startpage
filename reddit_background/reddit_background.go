@@ -35,6 +35,7 @@ type RedditImage struct {
 	URL       string `json:"url,omitempty"`
 	Permalink string `json:"permalink"`
 	Domain    string `json:"domain"`
+	Stickied  bool   `json:"stickied,omitempty"`
 	Saved     bool   `json:"-"`
 	Data      []byte `json:"-"`
 	origdata  []byte `json:"-"`
@@ -81,6 +82,10 @@ func GetRedditImage(maxsize int, subreddit string) (*RedditImage, error) {
 		}
 
 		if ri.URL == "" {
+			continue
+		}
+
+		if ri.Stickied {
 			continue
 		}
 
