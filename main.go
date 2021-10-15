@@ -18,7 +18,17 @@ import (
 
 var tpl *template.Template
 
-func loadTemplate() {
+func loadTemplateFromDir(templateDir string) error {
+	var err error
+	tpl, err = template.ParseFiles(path.Join(templateDir, "template.html"))
+
+	if err != nil {
+		return fmt.Errorf("Could not load template from '%s': %w", templateDir, err)
+	}
+	return nil
+}
+
+func loadTemplateFromGoPath() error {
 	gopaths := strings.Split(os.Getenv("GOPATH"), ":")
 	for _, p := range gopaths {
 		var err error
@@ -26,11 +36,19 @@ func loadTemplate() {
 			path.Join(p, "src", "github.com", "silvasur", "startpage", "templates", "template.html"),
 		)
 		if err == nil {
-			return
+			return nil
 		}
 	}
 
-	panic(errors.New("could not find template in $GOPATH/src/github.com/silvasur/startpage"))
+	return errors.New("could not find template in $GOPATH/src/github.com/silvasur/startpage")
+}
+
+func loadTemplate(templateDir string) error {
+	if templateDir != "" {
+		return loadTemplateFromDir(templateDir)
+	} else {
+		return loadTemplateFromGoPath()
+	}
 }
 
 func buildWeatherProvider(config Config) *weather.WeatherProvider {
@@ -52,9 +70,13 @@ func buildRedditImageProvider(config Config) *reddit_background.RedditImageProvi
 
 func main() {
 	laddr := flag.String("laddr", ":25145", "Listen on this port")
+	templateDir := flag.String("template-dir", "", "Search for templates in this directory instead of default")
+
 	flag.Parse()
 
-	loadTemplate()
+	if err := loadTemplate(*templateDir); err != nil {
+		log.Fatalf("Failed loading template: %s", err)
+	}
 
 	config, err := LoadConfig()
 	if err != nil {
