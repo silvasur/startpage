@@ -22,7 +22,9 @@ func loadTemplate() {
 	gopaths := strings.Split(os.Getenv("GOPATH"), ":")
 	for _, p := range gopaths {
 		var err error
-		tpl, err = template.ParseFiles(path.Join(p, "src", "github.com", "silvasur", "startpage", "template.html"))
+		tpl, err = template.ParseFiles(
+			path.Join(p, "src", "github.com", "silvasur", "startpage", "templates", "template.html"),
+		)
 		if err == nil {
 			return
 		}
