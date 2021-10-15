@@ -5,14 +5,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/silvasur/startpage/reddit_background"
-	"github.com/silvasur/startpage/weather"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/silvasur/startpage/reddit_background"
+	"github.com/silvasur/startpage/weather"
 )
 
 var tpl *template.Template
