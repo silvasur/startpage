@@ -80,8 +80,7 @@
 	<body {{ if .BgImage }} style="background-color: black; background-image: url(/bgimg);"{{ end }}>
 		{{ if .Weather }}
 			<div id="weather">
-				<a href="{{ .Weather.URL }}"><img src="{{ .Weather.Icon }}" alt="" /></a>
-				<span id="temp">{{ .Weather.Temp.Value }}°</span>
+				<span id="temp">{{ .Weather.Temp }}°</span>
 			</div>
 		{{ end }}
 		{{ if .Links }}
@@ -93,7 +92,6 @@
 				</ul>
 			</div>
 		{{ end }}
-
 
 		<footer>
 			{{ if .Weather }}

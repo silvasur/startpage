@@ -10,7 +10,9 @@ import (
 // Config contains all configuration options that are read from .config/startpage/config.json
 type Config struct {
 	// The place for which to get the weather data. If omitted, no weather will be shown
-	WeatherPlace string
+	WeatherCoords struct {
+		Lat, Lon string
+	}
 
 	// A list of links to show
 	Links []Link

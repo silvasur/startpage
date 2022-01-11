@@ -15,7 +15,10 @@ Here is an example with all fields filled out.
 
     {
         // The place for which to get the weather data. If omitted, no weather will be shown
-        "WeatherPlace": "Germany/Hamburg/Hamburg",
+        "WeatherCoords": {
+            "Lat": "53.6",
+            "Lon": "10.0"
+        },
 
         // A list of links to show. Can be omitted.
         "Links": [

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"path"
@@ -52,11 +53,11 @@ func loadTemplate(templateDir string) error {
 }
 
 func buildWeatherProvider(config Config) *weather.WeatherProvider {
-	if config.WeatherPlace == "" {
+	if config.WeatherCoords.Lat == "" || config.WeatherCoords.Lon == "" {
 		return nil
 	}
 
-	return weather.NewWeatherProvider(config.WeatherPlace)
+	return weather.NewWeatherProvider(config.WeatherCoords.Lat, config.WeatherCoords.Lon)
 }
 
 func buildRedditImageProvider(config Config) *reddit_background.RedditImageProvider {
@@ -96,9 +97,23 @@ func main() {
 	log.Fatal(http.ListenAndServe(*laddr, nil))
 }
 
+type TplWeather struct {
+	Temp int
+}
+
+func convertWeather(ts *weather.TimeseriesEntry) *TplWeather {
+	if ts == nil {
+		return nil
+	}
+
+	return &TplWeather{
+		Temp: int(math.Round(ts.Temperature())),
+	}
+}
+
 type TplData struct {
 	BgImage   *reddit_background.RedditImageForAjax
-	Weather   *weather.Weather
+	Weather   *TplWeather
 	Links     []Link
 	CanSaveBg bool
 }
@@ -109,7 +124,7 @@ func startpage(config Config, redditImageProvider *reddit_background.RedditImage
 	return func(rw http.ResponseWriter, req *http.Request) {
 		defer req.Body.Close()
 
-		var curWeather *weather.Weather = nil
+		var curWeather *weather.TimeseriesEntry = nil
 		if weatherProvider != nil {
 			var err error
 			if curWeather, err = weatherProvider.CurrentWeather(); err != nil {
@@ -119,7 +134,7 @@ func startpage(config Config, redditImageProvider *reddit_background.RedditImage
 
 		if err := tpl.Execute(rw, &TplData{
 			redditImageProvider.Image().ForAjax(),
-			curWeather,
+			convertWeather(curWeather),
 			config.Links,
 			config.BackgroundSavepath != "",
 		}); err != nil {
