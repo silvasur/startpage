@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/adrg/xdg"
 	"os"
+
+	"github.com/adrg/xdg"
 )
 
 // Config contains all configuration options that are read from .config/startpage/config.json

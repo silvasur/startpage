@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/nfnt/resize"
-	"github.com/silvasur/startpage/http_getter"
-	"github.com/silvasur/startpage/interval"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -20,6 +17,10 @@ import (
 	"path"
 	"strings"
 	"time"
+
+	"github.com/nfnt/resize"
+	"github.com/silvasur/startpage/http_getter"
+	"github.com/silvasur/startpage/interval"
 )
 
 type redditList struct {
